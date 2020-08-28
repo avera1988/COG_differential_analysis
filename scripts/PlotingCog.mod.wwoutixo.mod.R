@@ -1,3 +1,11 @@
+#! /usr/bin/env Rscript
+#############################################################################
+# From Spiroplasma ixodetis of Dactylopius project
+#This script produce a barplot to compare the differences in COG categoires 
+#  Using tab delimited "func_stats.txt" files produced from COG output for each genome
+######################################################################################
+
+
 library(tidyverse)
 library(ggplot2)
 library(RColorBrewer)
