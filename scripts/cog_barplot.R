@@ -1,8 +1,10 @@
-# COG barplot: compare Dorea vs PAL genome COG datasets
-# Using tab delimited "func_stats.txt" files produced from COG output for each genome
-# all "PublicDoreaGenomes" obtained from RefSeq database
-# see COG_BarPlot.rmd for source markdown document
-
+#! usr/bin/env Rscript
+################################################################
+#  This script produce a barplot to compare the differences in COG categoires 
+#  Using tab delimited "func_stats.txt" files produced from COG output for each genome
+# Author Arturo Vera
+# avera@ccg.unam.mx
+########################################################
 # load libraries:
 
 library(tidyverse)
