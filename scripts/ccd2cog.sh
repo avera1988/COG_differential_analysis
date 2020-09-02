@@ -12,7 +12,7 @@ print_usage(){
 }
 
 if [ #$ -le 0 ]
-then
+	then
 	print_usage
 	exit 1
 fi
