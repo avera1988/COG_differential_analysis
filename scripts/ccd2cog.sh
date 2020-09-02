@@ -25,6 +25,6 @@ for i in *.out;
         mkdir $i.dir
         cd $i.dir
         ln -s ../$i .
-        perl $cdd2go/cdd2go.pl -r $i -c $database/cddid.tbl -f $database/fun.txt -w $database/whog
+        perl $cdd2go/cdd2cog.pl -r $i -c $database/cddid.tbl -f $database/fun.txt -w $database/whog
         cd $wd
 done
