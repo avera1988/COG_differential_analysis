@@ -8,7 +8,7 @@
 ############################################################################
 
 print_usage(){
-	echo "Usage: $0 COG_database"
+	echo "Usage: $0 COG_database path_to_cdd2cog"
 }
 
 if [ #$ -le 0 ]
@@ -18,12 +18,13 @@ then
 fi
 
 database=$1
+cdd2go=$2
 wd=$(pwd)
 for i in *.out;
         do
         mkdir $i.dir
         cd $i.dir
         ln -s ../$i .
-        perl ~/scripts/COG/cdd2go.pl -r $i -c $database/cddid.tbl -f $database/fun.txt -w $database/whog
+        perl $cdd2go/cdd2go.pl -r $i -c $database/cddid.tbl -f $database/fun.txt -w $database/whog
         cd $wd
 done
