@@ -9,6 +9,7 @@
 
 print_usage(){
 	echo "Usage: $0 COG_database path_to_cdd2cog"
+	echo "example: bash ~/bin/COG_differential_analysis/scripts/ccd2cog.sh ~/database ~/bin/bac-genomics-scripts/cdd2cog/"
 }
 
 if [ $# -le 0 ]
