@@ -3,6 +3,7 @@
 #  This script produce a barplot to compare the differences in COG categoires 
 #  Using tab delimited "func_stats.txt" files produced from COG output for each genome
 # Author Arturo Vera
+# Mod. Mathias Schneider
 # avera@ccg.unam.mx
 ########################################################
 # load libraries:
