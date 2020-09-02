@@ -1,0 +1,197 @@
+---
+title: "COG_Plot_R_recipe"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+# This all the instructions for creating a bar plot from a COG results comparing 2 or more datasets. 
+
+Libraries needed
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+```
+
+## To load all the tab files into R we are can use either for loops or more sofisticated R conding by apply and tidyverse functions.
+
+## First the foor loop
+
+Create a vector with the file names. In the example case all files has the same file extention "tab" so you ues this as a pattern to look for you files: 
+
+```{r}
+list.filenames <- list.files(pattern = "tab$")
+head(list.filenames)
+```
+
+Remove all not useful strings (i.e. .mod.fasta.rps-blast.out.func_stats.tab) from the name wiht gsub. The regular expression "\\..*" means everithing after the first dot.
+
+```{r}
+Names <- gsub("\\..*","",list.filenames)
+head(Names)
+```
+
+Then use a for loop to load all the files into a table object with a dataframe for each genome
+You need to create an empty list object first and then apply the loop
+```{r}
+list.data <- list()
+for (i in 1:length(list.filenames)){
+  list.data[[i]]<-read.table(list.filenames[i],sep="\t",header=F,quote="")
+}
+```
+Name the Dataframe with the genome names
+```{r}
+names(list.data) <- Names
+```
+And then rename the colums in the data frames with COG, FUNC and the Genome Name
+
+```{r}
+for (i in 1:length(list.filenames)){
+  colnames(list.data[[i]]) <- c("COG","Func",Names[i])
+}
+head(list.data$DC)
+```
+
+## This is good but using for loops in R is not very common and not efficient for long data sets. So let's code in a real R way, that is using functions and packages
+
+This R chunk shows how to do it:
+
+
+1. generate a function to read tables
+
+```{r}
+my_read_delim <- function(path,name){
+  readr::read_delim(path, "\t", escape_double = FALSE, 
+                    trim_ws = TRUE,col_names = c("COG","Func",name))
+}
+
+```
+2. We need the paht (file names) and Names we can used the previous code:
+
+```{r}
+list.filenames <- list.files(pattern = "tab$")
+Names <- gsub("\\..*","",list.filenames)
+```
+3. Using the map2 function from purr (tidyverse) we can apply a function to a different objects. In this case use the path and the names at the same time to obtain the list with the data frames.
+
+```{r}
+list.Data <- purrr::map2(list.filenames,Names,my_read_delim)
+```
+
+Name all elements (data frames) of the list
+
+```{r}
+names(list.Data) <- Names
+head(list.Data$DC)
+```
+
+As we do not want the COG colum but Func and Genome Names let's remove them form the list
+
+```{r}
+list.data3 <- lapply(list.Data,function(x){x[,c(2,3)]})
+head(list.data3$DC)
+```
+
+Now we can reduce and merge all the dataframes into a single large dataframe. We can use the purrr reduce function joining all the dataframes by the Func column
+
+```{r}
+CogValues2 <- purrr::reduce(list.data3,full_join,by="Func")
+head(CogValues2)
+```
+
+Now to compare the Number of genes we normalized by relative proportion of genes using the following function
+
+```{r}
+sapply(names(CogValues2)[-1], function(x) {
+  CogValues2[paste0(x,"pct")] <<- (CogValues2[x]/sum(CogValues2[x]))
+})
+```
+
+Then we select the proportion of genes (pct) colums and the function:
+
+```{r}
+CogValuesMod2 <- dplyr::select(CogValues2, matches("Func|pct"))
+head(CogValuesMod2)
+```
+
+As Bacteria lacks of nuclear and extracellular elements filter all those rows with:
+
+```{r}
+CogValuesMod2 <- dplyr::filter(CogValuesMod2,str_detect(Func,"Nuclear", negate = TRUE)) %>%
+  filter(str_detect(Func,"Extracellular", negate = TRUE))
+```
+
+
+### Now we start separating the contrast we want to evaluate. In this case Dacty and public
+
+Generate a new dataframe for not loosing all info in furhter steeps
+
+```{r}
+toto <- CogValuesMod2
+
+```
+
+Then unsing the name in the genomes (in this case D and Spiro) separate the objects
+
+```{r}
+totoDacty <- dplyr::select(toto,matches("(DC|DO|Func)"))
+totoPublic <- dplyr::select(toto,matches("(Func|Spi)")) %>%
+  select(-matches("WSS|Danaus"))
+```
+*As there was other species similar to DC an DO I remove with -matches in P. americana it wont happen.
+
+Then we need to shift the table and add the source of the genome for each category. We use the tidyr function gather to keep the correspondence of the Genome (key) and the number of genes for each category (value) in each comparison NamesDacty
+
+Dacty ones
+```{r}
+NamesDacty <- colnames(totoDacty)[-1]
+totoDactymod <- tidyr::gather(totoDacty,key="Genome",value="Numberofgenes",NamesDacty)
+totoDactymod$Source <- "S.ixodetisDactylopius"
+head(totoDactymod)
+```
+
+Public ones
+
+```{r}
+NamesNoDacty <- colnames(totoPublic)[-1]
+totoNoDacty <- gather(totoPublic,key="Genome",value="Numberofgenes",NamesNoDacty)
+totoNoDacty$Source <- "OtherSpiroplasma"
+head(totoNoDacty)
+```
+
+Now we can merge these dataframes into a single one:
+
+```{r}
+totoTotal <- dplyr::bind_rows(totoDactymod,totoNoDacty)
+```
+
+With this now we can start comparing the COG proportion of genes for each category on each group, it means Dacty and NoDacty. To do this we can use the tidyverse functions group_by and summarize to obtain the average and the standar error of the number of genes in each category.
+
+```{r}
+totoTolaStats <- totoTotal %>% 
+  group_by(Func,Source) %>%
+  dplyr::summarise(Average =mean(Numberofgenes),
+                   stde=sd(Numberofgenes)/sqrt(length(Numberofgenes))) %>%
+  dplyr::rename("Numberofgenes"=Average)
+head(totoTolaStats)
+```
+
+Now we have all the elements for the bar plot: Average number of genes in each COG category for two different groups with the sterr for stats. Using ggplot we can plot:
+
+```{r}
+BarPlot <- ggplot(data=totoTolaStats,aes(x=reorder(Func, +Numberofgenes),
+                              y=Numberofgenes,fill=Source)) +
+  geom_bar(stat="identity",position=position_dodge())+
+  labs(x="COG",y="Proportion of Genes") + 
+  geom_errorbar(aes(ymin=Numberofgenes-stde, ymax=Numberofgenes+stde), width=.5,
+                position=position_dodge(.6))+
+  scale_fill_brewer(palette = "Set2")+
+  coord_flip()+
+  theme_bw()
+BarPlot
+```
+
