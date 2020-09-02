@@ -11,7 +11,7 @@ print_usage(){
 	echo "Usage: $0 COG_database path_to_cdd2cog"
 }
 
-if [ #$ -le 0 ]
+if [ $# -le 0 ]
 	then
 	print_usage
 	exit 1
