@@ -17,7 +17,7 @@ if (!require("pheatmap")){
 if (!require("viridis")){
   install.packages("viridis")
   library(viridis)
-}
+} 
 
 #Reading tab file with COG annot for each genome
 
