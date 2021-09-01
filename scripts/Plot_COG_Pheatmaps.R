@@ -10,8 +10,8 @@ if (!require("tidyverse")){
   install.packages("tidyverse")
   library(tidyverse)
 }
-if (!require("pheatmap")){
-  install.packages("pheatmap")
+if (!require('pheatmap')){
+  install.packages('pheatmap')
   library(pheatmap)
 }
 if (!require("viridis")){
