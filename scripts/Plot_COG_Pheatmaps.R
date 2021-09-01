@@ -23,8 +23,8 @@ if (!require("viridis")){
 
 #Reading tab file with COG annot for each genome
 
-file.names <- list.files(pattern = ".*tab$")
-names <- gsub(".fasta..*","",file.names)
+file.names <- list.files(pattern = ".*catego.tab$")
+names <- gsub("\\..*","",file.names)
 my_read_delim <- function(path){
   readr::read_delim(path, "\t", escape_double = FALSE, 
                     trim_ws = TRUE)
