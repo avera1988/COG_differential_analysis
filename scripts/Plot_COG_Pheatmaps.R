@@ -6,10 +6,18 @@
 #	avera@ccg.unam.mx
 ######################################################################
 
-library(tidyverse)
-library(pheatmap)
-library(viridis)
-
+if (!require("tidyverse")){
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("pheatmap")){
+  install.packages("pheatmap")
+  library(pheatmap)
+}
+if (!require("viridis")){
+  install.packages("viridis")
+  library(viridis)
+}
 
 #Reading tab file with COG annot for each genome
 
