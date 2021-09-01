@@ -67,8 +67,7 @@ TotalCOG <- TotalCOG %>%
 TotCOGmat <- TotalCOG %>%
   unite(COG_Annot,c("COG","Annot"),sep="_") %>%
   column_to_rownames("COG_Annot")
-
-
-
+##Ploting the heatmap 
 COGPh <- pheatmap(TotCOGmat)
-ggsave(COGPh, file=paste0(COGCat,".heatmap.pdf"))
+COGCat <- gsub(".tsv","",COGTSV.file)
+ggsave(COGPh, file=paste0(COGCat,".heatmap.pdf"),width = 15,height = 15)
