@@ -8,10 +8,23 @@
 ########################################################
 # load libraries:
 
-library(tidyverse)
-library(ggplot2)
-library(RColorBrewer)
-library(stringr)
+if (!require("tidyverse")){
+  install.packages("tidyverse")
+  library(tidyverse)
+}
+if (!require("ggplot2")){
+  install.packages("ggplot2")
+  library(ggplot2)
+}
+if (!require("RColorBrewer")){
+  install.packages("RColorBrewer")
+  library(RColorBrewer)
+}
+if (!require("stringr")){
+  install.packages("stringr")
+  library(stringr)
+}
+
 
 #make function to read tables
 
