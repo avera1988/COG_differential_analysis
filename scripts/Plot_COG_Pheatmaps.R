@@ -11,11 +11,13 @@ if (!require("tidyverse")){
   library(tidyverse)
 }
 if (!require('pheatmap')){
-  install.packages('pheatmap')
+  install.packages('pheatmap',
+                   repos = "http://cran.us.r-project.org")
   library(pheatmap)
 }
 if (!require("viridis")){
-  install.packages("viridis")
+  install.packages("viridis",
+                  repos = "http://cran.us.r-project.org")
   library(viridis)
 } 
 
